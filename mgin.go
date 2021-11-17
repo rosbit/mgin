@@ -67,18 +67,19 @@ func (h *MiniGin) Run(addr ...string) {
 	h.n.Run(addr...)
 }
 
-func (h *MiniGin) WrapMiddleFunc(handlerFunc HandlerFunc) Handler {
-	return HandlerFunc(handlerFunc)
-}
-
-func (h *MiniGin) Wrap(handler http.Handler) Handler {
-	return negroni.Wrap(handler)
-}
-
-func (h *MiniGin) WrapFunc(handlerFunc http.HandlerFunc) Handler {
-	return negroni.WrapFunc(handlerFunc)
-}
-
 func (hr *MiniGin) NotFoundHandler(h http.Handler) {
 	hr.m.NotFound(h)
 }
+
+func WrapMiddleFunc(handlerFunc HandlerFunc) Handler {
+	return HandlerFunc(handlerFunc)
+}
+
+func Wrap(handler http.Handler) Handler {
+	return negroni.Wrap(handler)
+}
+
+func WrapFunc(handlerFunc http.HandlerFunc) Handler {
+	return negroni.WrapFunc(handlerFunc)
+}
+
