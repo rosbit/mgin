@@ -18,7 +18,7 @@ type MiniGin struct {
 //	ServeHTTP(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc)
 // }
 type Handler = negroni.Handler
-// type negroni..HandlerFunc func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc)
+// type HandlerFunc func(rw http.ResponseWriter, r *http.Request, next http.HandlerFunc)
 type HandlerFunc = negroni.HandlerFunc
 
 func NewMgin(handlers ...Handler) *MiniGin {
@@ -33,7 +33,7 @@ func NewMgin(handlers ...Handler) *MiniGin {
 		}
 	}
 	if !hasLogger {
-		n.Use(WithLogger("http-helper"))
+		n.Use(WithLogger("mgin"))
 	}
 	for _, handler := range handlers {
 		if _, ok := handler.(*negroni.Logger); !ok {
@@ -67,20 +67,16 @@ func (h *MiniGin) Run(addr ...string) {
 	h.n.Run(addr...)
 }
 
-func (h *MiniGin) Use(handler Handler) {
-	h.n.Use(handler)
+func (h *MiniGin) WrapMiddleFunc(handlerFunc HandlerFunc) Handler {
+	return HandlerFunc(handlerFunc)
 }
 
-func (h *MiniGin) UseFunc(handlerFunc HandlerFunc) {
-	h.n.UseFunc(handlerFunc)
+func (h *MiniGin) Wrap(handler http.Handler) Handler {
+	return negroni.Wrap(handler)
 }
 
-func (h *MiniGin) UseHandler(handler http.Handler) {
-	h.n.Use(negroni.Wrap(handler))
-}
-
-func (h *MiniGin) UseHandlerFunc(handlerFunc http.HandlerFunc) {
-	h.n.UseHandlerFunc(handlerFunc)
+func (h *MiniGin) WrapFunc(handlerFunc http.HandlerFunc) Handler {
+	return negroni.WrapFunc(handlerFunc)
 }
 
 func (hr *MiniGin) NotFoundHandler(h http.Handler) {
