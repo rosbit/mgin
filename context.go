@@ -2,17 +2,19 @@ package mgin
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/gin-contrib/sse"
 	"github.com/go-zoo/bone"
+	"mime/multipart"
+	"encoding/json"
+	"path/filepath"
 	"net/http"
 	"net/url"
 	"strings"
 	"reflect"
 	"strconv"
-	"mime/multipart"
-	"encoding/json"
+	"context"
 	"io"
 	"os"
-	"path/filepath"
 	"fmt"
 )
 
@@ -418,4 +420,20 @@ func (c *Context) ReadAndValidateJSON(res interface{}) (code int, err error) {
 		code = http.StatusBadRequest
 	}
 	return
+}
+
+func (c *Context) SSEvent(name string, message interface{}) {
+	sse.Event{Event: name, Data: message}.Render(c.w)
+}
+
+func (c *Context) Context() context.Context {
+	return c.r.Context()
+}
+
+func (c *Context) IsWebsocket() bool {
+	if strings.Contains(strings.ToLower(c.Header("Connection")), "upgrade") &&
+		strings.EqualFold(c.Header("Upgrade"), "websocket") {
+		return true
+	}
+	return false
 }
