@@ -398,21 +398,28 @@ func (c *Context) Redirect(code int, url string) error {
 	return nil
 }
 
-func (c *Context) ReadJSON(res interface{}) (code int, err error) {
+func (c *Context) ReadJSON(res interface{}, dumpingBody ...bool) (code int, err error) {
 	if c.r.Body == nil {
 		return http.StatusBadRequest, fmt.Errorf("bad request")
 	}
 	defer c.r.Body.Close()
 
-	if err = json.NewDecoder(c.r.Body).Decode(res); err != nil {
+	var dumper io.Writer
+	if len(dumpingBody) > 0 && dumpingBody[0] {
+		dumper = os.Stderr
+	}
+	reqBody, deferFunc := bodyDumper(c.r.Body, dumper)
+	defer deferFunc()
+
+	if err = json.NewDecoder(reqBody).Decode(res); err != nil {
 		return http.StatusBadRequest, err
 	}
 
 	return http.StatusOK, nil
 }
 
-func (c *Context) ReadAndValidateJSON(res interface{}) (code int, err error) {
-	if code, err = c.ReadJSON(res); err != nil {
+func (c *Context) ReadAndValidateJSON(res interface{}, dumpingBody ...bool) (code int, err error) {
+	if code, err = c.ReadJSON(res, dumpingBody...); err != nil {
 		return
 	}
 	v := validator.New()
