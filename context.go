@@ -398,17 +398,17 @@ func (c *Context) Redirect(code int, url string) error {
 	return nil
 }
 
-func (c *Context) ReadJSON(res interface{}, dumpingBody ...bool) (code int, err error) {
+func (c *Context) ReadJSON(res interface{}, dumper ...io.Writer) (code int, err error) {
 	if c.r.Body == nil {
 		return http.StatusBadRequest, fmt.Errorf("bad request")
 	}
 	defer c.r.Body.Close()
 
-	var dumper io.Writer
-	if len(dumpingBody) > 0 && dumpingBody[0] {
-		dumper = os.Stderr
+	var realDumper io.Writer
+	if len(dumper) > 0 && dumper[0] != nil {
+		realDumper = dumper[0]
 	}
-	reqBody, deferFunc := bodyDumper(c.r.Body, dumper)
+	reqBody, deferFunc := bodyDumper(c.r.Body, realDumper)
 	defer deferFunc()
 
 	if err = json.NewDecoder(reqBody).Decode(res); err != nil {
@@ -418,8 +418,8 @@ func (c *Context) ReadJSON(res interface{}, dumpingBody ...bool) (code int, err 
 	return http.StatusOK, nil
 }
 
-func (c *Context) ReadAndValidateJSON(res interface{}, dumpingBody ...bool) (code int, err error) {
-	if code, err = c.ReadJSON(res, dumpingBody...); err != nil {
+func (c *Context) ReadAndValidateJSON(res interface{}, dumper ...io.Writer) (code int, err error) {
+	if code, err = c.ReadJSON(res, dumper...); err != nil {
 		return
 	}
 	v := validator.New()
