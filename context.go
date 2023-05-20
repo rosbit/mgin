@@ -444,3 +444,14 @@ func (c *Context) IsWebsocket() bool {
 	}
 	return false
 }
+
+func (c *Context) RemoteAddr() string {
+	if addr := c.Header("X-Forwarded-For"); len(addr) > 0 {
+		return addr
+	}
+	raddr := c.r.RemoteAddr
+	if pos := strings.LastIndexByte(raddr, ':'); pos > 0 {
+		return raddr[:pos]
+	}
+	return raddr
+}
