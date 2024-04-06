@@ -56,6 +56,10 @@ func (c *Context) Response() http.ResponseWriter {
 	return c.w
 }
 
+func (c *Context) ResponseJSONEncoder() *json.Encoder {
+	return json.NewEncoder(c.w)
+}
+
 func (c *Context) Param(name string) string {
 	if c.p == nil {
 		c.p = bone.GetAllValues(c.r)
@@ -299,6 +303,17 @@ func (c *Context) SetHeader(key, value string) {
 
 func (c *Context) AddHeader(key, value string) {
 	c.w.Header().Add(key, value)
+}
+
+func (c *Context) WriteHeader(statusCode int, contentType ...string) {
+	if len(contentType) > 0 && len(contentType[0]) > 0 {
+		c.writeContentType(contentType[0])
+	}
+	c.w.WriteHeader(statusCode)
+}
+
+func (c *Context) Write(b []byte) (int, error) {
+	return c.w.Write(b)
 }
 
 func (c *Context) writeContentType(contentType string) {

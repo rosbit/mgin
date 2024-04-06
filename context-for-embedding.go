@@ -69,6 +69,16 @@ func (c *Context) StringBlob(code int, ct string, s string) (errStr string) {
 	return
 }
 
+func (c *Context) WriteChunk(s string) (bytesWriten int, errStr string) {
+	var b []byte
+	str2bytes(&s, &b)
+	var err error
+	if bytesWriten, err = c.Write(b); err != nil {
+		errStr = err.Error()
+	}
+	return
+}
+
 func bytes2str(b *[]byte, s *string) {
 	bs := (*reflect.SliceHeader)(unsafe.Pointer(b))
 	v := (*reflect.StringHeader)(unsafe.Pointer(s))
