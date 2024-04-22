@@ -37,7 +37,10 @@ func (c *Context) ReadJSONBody() (body interface{}, errStr string ) {
 		return
 	}
 	defer c.r.Body.Close()
-	if e := json.NewDecoder(c.r.Body).Decode(&body); e != nil {
+
+	jr := json.NewDecoder(c.r.Body)
+	jr.UseNumber()
+	if e := jr.Decode(&body); e != nil {
 		errStr = e.Error()
 		return
 	}

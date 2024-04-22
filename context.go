@@ -426,7 +426,9 @@ func (c *Context) ReadJSON(res interface{}, dumper ...io.Writer) (code int, err 
 	reqBody, deferFunc := bodyDumper(c.r.Body, realDumper)
 	defer deferFunc()
 
-	if err = json.NewDecoder(reqBody).Decode(res); err != nil {
+	jr := json.NewDecoder(reqBody)
+	jr.UseNumber()
+	if err = jr.Decode(res); err != nil {
 		return http.StatusBadRequest, err
 	}
 
