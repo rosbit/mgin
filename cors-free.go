@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func CreateCoresFreeHandler() Handler {
+func CreateCorsFreeHandler() Handler {
 	return WrapMiddleFunc(func(w http.ResponseWriter, r *http.Request, next http.HandlerFunc) {
 		h := w.Header()
 		h.Set("Access-Control-Allow-Origin", "*")
