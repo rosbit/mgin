@@ -27,3 +27,7 @@ func bodyDumper(body io.Reader, dumper io.Writer, prompts ...string) (reader io.
 func CreateBodyDumpingHandler(dumper io.Writer, prompt ...string) Handler {
 	return WrapMiddleFunc(logr.CreateBodyDumpingHandlerFunc(dumper, prompt...))
 }
+
+func CreateBodyDumpingHandler2(dumper io.Writer, reqPrompt, respPrompt string) Handler {
+	return WrapMiddleFunc(logr.CreateBodyDumpingHandlerFunc2(dumper, logr.RequestPrompt(reqPrompt), logr.DumpingResponse(respPrompt)))
+}
