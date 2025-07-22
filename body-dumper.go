@@ -28,6 +28,13 @@ func CreateBodyDumpingHandler(dumper io.Writer, prompt ...string) Handler {
 	return WrapMiddleFunc(logr.CreateBodyDumpingHandlerFunc(dumper, prompt...))
 }
 
-func CreateBodyDumpingHandler2(dumper io.Writer, reqPrompt, respPrompt string) Handler {
-	return WrapMiddleFunc(logr.CreateBodyDumpingHandlerFunc2(dumper, logr.RequestPrompt(reqPrompt), logr.DumpingResponse(respPrompt)))
+func CreateBodyDumpingHandler2(dumper io.Writer, reqPrompt, respPrompt string, querySwitchParam ...string) Handler {
+	options := []logr.Option{
+		logr.RequestPrompt(reqPrompt),
+		logr.DumpingResponse(respPrompt),
+	}
+	if len(querySwitchParam) > 0 && len(querySwitchParam[0]) > 0 {
+		options = append(options, logr.WithQuerySwithName(querySwitchParam[0]))
+	}
+	return WrapMiddleFunc(logr.CreateBodyDumpingHandlerFunc2(dumper, options...))
 }
